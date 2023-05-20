@@ -25,7 +25,7 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
-         client.connect();
+        client.connect();
         // Send a ping to confirm a successful connection
 
         const toysCollection = client.db('toyMarketplace').collection('toy');
@@ -50,6 +50,11 @@ async function run() {
             res.send(result)
         })
 
+        app.get('/myToys/:email', async (req, res) => {
+            console.log(req.params.email);
+            const result = await toysCollection.find({ sellerEmail: req.params.email }).toArray();
+            res.send(result)
+        })
 
 
         await client.db("admin").command({ ping: 1 });
