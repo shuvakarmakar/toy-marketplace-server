@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000;
 require('dotenv').config();
@@ -25,7 +25,7 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
-        await client.connect();
+         client.connect();
         // Send a ping to confirm a successful connection
 
         const toysCollection = client.db('toyMarketplace').collection('toy');
@@ -40,6 +40,14 @@ async function run() {
         app.get('/allToys', async (req, res) => {
             const result = await toysCollection.find({}).toArray();
             res.send(result);
+        })
+
+        app.get('/allToys/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await toysCollection.findOne(query);
+            console.log(result);
+            res.send(result)
         })
 
 
@@ -61,5 +69,5 @@ app.get('/', (req, res) => {
 })
 
 app.listen(port, () => {
-    console.log(`Car Doctor Server is Running on port ${port}`);
+    console.log(`Toy Marketplace Server is Running on ${port}`);
 })
