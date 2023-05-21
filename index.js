@@ -50,11 +50,34 @@ async function run() {
             res.send(result)
         })
 
+        // FOr Display Specific Seller Product in My Toy Page
         app.get('/myToys/:email', async (req, res) => {
             console.log(req.params.email);
             const result = await toysCollection.find({ sellerEmail: req.params.email }).toArray();
             res.send(result)
         })
+
+        // For Update Data
+        // app.put('myToys/:id', async (req, res) => {
+        //     const id = req.params.id;
+        //     const filter = { _id: new ObjectId(id) }
+        //     const options = { upsert: true };
+        //     const updatedToy = req.body;
+        //     const toy = {
+        //         $set:{
+        //             price: updatedToy.price,
+        //             availableQuantity : updatedToy.availableQuantity,
+        //             description : updatedToy.description,
+        //         } 
+        //     }
+        //     const result = await toysCollection.updateOne(filter, toy, options);
+        //     res.send(result);
+        // })
+
+        // Creating index on two fields
+        const indexKeys = { price: 1, name: 1 }; // Replace field1 and field2 with your actual field names
+        const indexOptions = { name: "namePrice" }; // Replace index_name with the desired index name
+        const result = await toysCollection.createIndex(indexKeys, indexOptions);
 
         app.delete('/myToys/:id', async (req, res) => {
             const id = req.params.id;
