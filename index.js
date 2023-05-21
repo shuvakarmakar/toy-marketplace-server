@@ -75,9 +75,23 @@ async function run() {
         // })
 
         // Creating index on two fields
-        const indexKeys = { price: 1, name: 1 }; // Replace field1 and field2 with your actual field names
-        const indexOptions = { name: "namePrice" }; // Replace index_name with the desired index name
+        const indexKeys = { subCategory: 1, name: 1 }; // Replace field1 and field2 with your actual field names
+        const indexOptions = { name: "nameCategory" }; // Replace index_name with the desired index name
         const result = await toysCollection.createIndex(indexKeys, indexOptions);
+
+        app.get("/toySearchByTitle/:text", async (req, res) => {
+            const searchText = req.params.text;
+
+            const result = await toysCollection.find({
+                $or: [
+                    { name: { $regex: searchText, $options: "i" } },
+                    { subCategory: { $regex: searchText, $options: "i" } },
+                ]
+            }).toArray()
+
+            res.send(result)
+        })
+
 
         app.delete('/myToys/:id', async (req, res) => {
             const id = req.params.id;
