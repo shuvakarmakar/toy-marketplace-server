@@ -27,17 +27,20 @@ async function run() {
 
         const toysCollection = client.db('toyMarketplace').collection('toy');
 
+        // For Storing Data to MongoDB using Add A Toy Page
         app.post('/addAToy', async (req, res) => {
             const body = req.body;
             const result = await toysCollection.insertOne(body);
             res.send(result);
         });
 
+        // For Getting Data from MongoDB to show All Toys Page
         app.get('/allToys', async (req, res) => {
             const result = await toysCollection.find({}).toArray();
             res.send(result);
         });
 
+        // For Getting One Data from MongoDB to Show View Details Button in Homepage
         app.get('/allToys/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
@@ -45,11 +48,13 @@ async function run() {
             res.send(result);
         });
 
+        //  To Show Data from MongoDB as User Email in My Toys Page
         app.get('/myToys/:email', async (req, res) => {
             const result = await toysCollection.find({ sellerEmail: req.params.email }).toArray();
             res.send(result);
         });
 
+        // To Update data
         app.put('/myToys/:id', async (req, res) => {
             const id = req.params.id;
             const filter = { _id: new ObjectId(id) };
@@ -66,7 +71,24 @@ async function run() {
             res.send(result);
         });
 
-        // Other routes...
+        // Creating index on two fields
+        const indexKeys = { subCategory: 1, name: 1 }; // Replace field1 and field2 with your actual field names
+        const indexOptions = { name: "nameCategory" }; // Replace index_name with the desired index name
+        const result = await toysCollection.createIndex(indexKeys, indexOptions);
+
+        app.get("/toySearchByTitle/:text", async (req, res) => {
+            const searchText = req.params.text;
+
+            const result = await toysCollection.find({
+                $or: [
+                    { name: { $regex: searchText, $options: "i" } },
+                    { subCategory: { $regex: searchText, $options: "i" } },
+                ]
+            }).toArray()
+
+            res.send(result)
+        })
+
 
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
